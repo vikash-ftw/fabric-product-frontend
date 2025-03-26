@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product Management UI</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Add Product Section -->
+        <section class="add-product">
+            <h2>Add a Product</h2>
+            <form id="addProductForm">
+                <input type="text" id="productNumber" placeholder="Product Number" required>
+                <input type="text" id="productManufacturer" placeholder="Manufacturer" required>
+                <input type="text" id="productName" placeholder="Product Name" required>
+                <input type="text" id="productOwnerName" placeholder="Owner Name" required>
+                <button type="submit">Add Product</button>
+            </form>
+            <div class="response">
+                <h3>Add Product Response</h3>
+                <div id="addResponseLoading" class="loading" style="display: none;">Loading...</div>
+                <div id="addResponseOutput" class="response-content" style="display: none;">
+                    <p><strong>Response Status:</strong> <span id="addStatus"></span></p>
+                    <p><strong>Data:</strong> <span id="addData"></span></p>
+                    <p><strong>Message:</strong> <span id="addMessage"></span></p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Fetch Product Section -->
+        <section class="fetch-product">
+            <h2>Fetch a Product</h2>
+            <form id="fetchProductForm">
+                <input type="text" id="fetchProductNumber" placeholder="Product Number" required>
+                <button type="submit">Fetch Product</button>
+            </form>
+            <div class="response">
+                <h3>Fetch Product Response</h3>
+                <div id="fetchResponseLoading" class="loading" style="display: none;">Loading...</div>
+                <div id="fetchResponseOutput" class="response-content" style="display: none;">
+                    <p><strong>Response Status:</strong> <span id="fetchStatus"></span></p>
+                    <p><strong>Data:</strong> <span id="fetchData"></span></p>
+                    <p><strong>Message:</strong> <span id="fetchMessage"></span></p>
+                </div>
+            </div>
+        </section>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
