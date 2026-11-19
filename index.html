@@ -3,50 +3,114 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Product Management UI</title>
+    <title>Fabric Product Console</title>
+    <script>
+        (function () {
+            var theme = "light";
+            try {
+                theme = localStorage.getItem("theme") || "light";
+            } catch (e) {}
+            document.documentElement.setAttribute("data-theme", theme);
+        })();
+    </script>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <div class="container">
-        <!-- Add Product Section -->
-        <section class="add-product">
-            <h2>Add a Product</h2>
-            <form id="addProductForm">
-                <input type="text" id="productNumber" placeholder="Product Number" required>
-                <input type="text" id="productManufacturer" placeholder="Manufacturer" required>
-                <input type="text" id="productName" placeholder="Product Name" required>
-                <input type="text" id="productOwnerName" placeholder="Owner Name" required>
-                <button type="submit">Add Product</button>
-            </form>
-            <div class="response">
-                <h3>Add Product Response</h3>
-                <div id="addResponseLoading" class="loading" style="display: none;">Loading...</div>
-                <div id="addResponseOutput" class="response-content" style="display: none;">
-                    <p><strong>Response Status:</strong> <span id="addStatus"></span></p>
-                    <p><strong>Data:</strong> <span id="addData"></span></p>
-                    <p><strong>Message:</strong> <span id="addMessage"></span></p>
+    <header class="topbar">
+        <div class="topbar-inner">
+            <div class="brand">
+                <span class="brand-mark" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8 12 3 3 8v8l9 5 9-5V8z"/><path d="m3 8 9 5 9-5"/><path d="M12 13v8"/></svg>
+                </span>
+                <div>
+                    <h1>Product Console</h1>
+                    <p>Hyperledger Fabric client</p>
                 </div>
             </div>
-        </section>
+            <div class="topbar-actions">
+                <span id="serverStatus" class="status-pill checking" title="Server connection">
+                    <span class="dot"></span><span id="serverStatusText">Checking…</span>
+                </span>
+                <button id="themeToggle" class="icon-btn" type="button" aria-label="Toggle dark mode" title="Toggle dark mode">
+                    <svg class="icon-moon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+                    <svg class="icon-sun" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+                </button>
+            </div>
+        </div>
+    </header>
 
-        <!-- Fetch Product Section -->
-        <section class="fetch-product">
-            <h2>Fetch a Product</h2>
-            <form id="fetchProductForm">
-                <input type="text" id="fetchProductNumber" placeholder="Product Number" required>
-                <button type="submit">Fetch Product</button>
-            </form>
-            <div class="response">
-                <h3>Fetch Product Response</h3>
-                <div id="fetchResponseLoading" class="loading" style="display: none;">Loading...</div>
-                <div id="fetchResponseOutput" class="response-content" style="display: none;">
-                    <p><strong>Response Status:</strong> <span id="fetchStatus"></span></p>
-                    <p><strong>Data:</strong> <span id="fetchData"></span></p>
-                    <p><strong>Message:</strong> <span id="fetchMessage"></span></p>
+    <main class="container">
+        <div class="panels">
+            <section class="panel" aria-labelledby="addTitle">
+                <h2 id="addTitle">Add a product</h2>
+                <p class="panel-sub">Submit a new product to the ledger.</p>
+                <form id="addProductForm" novalidate>
+                    <div class="field">
+                        <label for="productNumber">Product number</label>
+                        <input type="text" id="productNumber" placeholder="e.g. P-001" autocomplete="off" required>
+                        <span class="field-error" data-error-for="productNumber"></span>
+                    </div>
+                    <div class="field">
+                        <label for="productManufacturer">Manufacturer</label>
+                        <input type="text" id="productManufacturer" placeholder="e.g. Nvidia" autocomplete="off" required>
+                        <span class="field-error" data-error-for="productManufacturer"></span>
+                    </div>
+                    <div class="field">
+                        <label for="productName">Product name</label>
+                        <input type="text" id="productName" placeholder="e.g. GTX-2080" autocomplete="off" required>
+                        <span class="field-error" data-error-for="productName"></span>
+                    </div>
+                    <div class="field">
+                        <label for="productOwnerName">Owner name</label>
+                        <input type="text" id="productOwnerName" placeholder="e.g. Harman" autocomplete="off" required>
+                        <span class="field-error" data-error-for="productOwnerName"></span>
+                    </div>
+                    <button type="submit" class="btn"><span class="spinner" aria-hidden="true"></span><span class="btn-label">Add product</span></button>
+                </form>
+                <div class="result-wrap">
+                    <h3>Response</h3>
+                    <div id="addResult" class="result" aria-live="polite"></div>
                 </div>
+            </section>
+
+            <section class="panel" aria-labelledby="fetchTitle">
+                <h2 id="fetchTitle">Fetch a product</h2>
+                <p class="panel-sub">Look up a product on the ledger by its number.</p>
+                <form id="fetchProductForm" novalidate>
+                    <div class="field">
+                        <label for="fetchProductNumber">Product number</label>
+                        <input type="text" id="fetchProductNumber" placeholder="e.g. P-001" autocomplete="off" required>
+                        <span class="field-error" data-error-for="fetchProductNumber"></span>
+                    </div>
+                    <button type="submit" class="btn"><span class="spinner" aria-hidden="true"></span><span class="btn-label">Fetch product</span></button>
+                </form>
+                <div class="result-wrap">
+                    <h3>Response</h3>
+                    <div id="fetchResult" class="result" aria-live="polite"></div>
+                </div>
+            </section>
+        </div>
+
+        <section class="panel history" aria-labelledby="historyTitle">
+            <div class="history-head">
+                <div>
+                    <h2 id="historyTitle">Request history</h2>
+                    <p class="panel-sub">Recent calls from this page. Cleared on reload.</p>
+                </div>
+                <button id="clearHistory" class="btn btn-ghost" type="button">Clear</button>
             </div>
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr><th>Time</th><th>Action</th><th>Product</th><th>Status</th><th class="num">Duration</th></tr>
+                    </thead>
+                    <tbody id="historyBody"></tbody>
+                </table>
+            </div>
+            <p id="historyEmpty" class="empty">No requests yet.</p>
         </section>
-    </div>
+    </main>
+
     <script src="script.js"></script>
 </body>
 </html>
